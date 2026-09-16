@@ -97,6 +97,8 @@
     .product b { display:block; font:700 16px/1 'Barlow Condensed',sans-serif; }.product span { display:block; margin-top:4px; color:var(--slate); font:500 9px 'DM Mono',monospace; }.product .article { color:var(--red); }
     .product .article-number { color:var(--red); font:700 13px 'DM Mono',monospace; letter-spacing:.02em; }
     .product .article-description { color:var(--ink); font:600 12px/1.25 Manrope,sans-serif; }
+    .product img { display:block; width:100%; height:110px; object-fit:contain; background:#fff; margin:0 0 8px; transform:none !important; }
+    .product img.image-landscape { width:100%; height:110px; object-fit:contain; transform:none !important; }
     .block.placed{background:#202426;padding:0;overflow:hidden;position:relative}.block.placed img{width:100%;height:100%;object-fit:contain;background:#202426;display:block}.block.placed .insert-tag{position:absolute;z-index:3;bottom:0;left:0;right:0;background:rgba(18,24,27,.9);color:#fff;padding:4px 5px 3px;font:700 8px 'DM Mono',monospace;text-align:center;line-height:1.15;display:flex;justify-content:center;align-items:baseline;gap:5px;white-space:nowrap}.block.placed .insert-tag b{font-weight:700}.block.placed .insert-tag small{font-size:7px;color:#d7ddde}.block.selectable{outline:3px solid var(--yellow);outline-offset:2px}.layout-card{cursor:pointer;transition:background .15s}.layout-card:hover{background:#fff6f5}.layout-card.active-plan{background:#fff0ee;box-shadow:inset 0 0 0 2px var(--red)}.product{display:flex;flex-direction:column;gap:2px}.product img{width:100%;height:144px;object-fit:contain;background:#202426;border:1px solid var(--line);margin-bottom:5px;padding:3px}.product.disabled{opacity:.42;cursor:not-allowed}
     @media(max-width:900px){ .intro,.workspace{grid-template-columns:1fr}.intro{gap:24px}.measure{max-width:280px}.chooser{order:2}.option-list{grid-template-columns:repeat(2,1fr)}.catalogue-grid{grid-template-columns:repeat(2,1fr)}.layout-reference-grid{grid-template-columns:1fr}.layout-card,.layout-card:nth-child(4n){border-right:0}.product:nth-child(2){border-right:0}.product:nth-child(n+3){border-top:1px solid var(--line)}}
     @media(max-width:580px){.catalogue-grid,.layout-reference-grid{grid-template-columns:1fr}.layout-card,.layout-card:nth-child(4n){border-right:0}.product{border-right:0;border-bottom:1px solid var(--line)}.product:last-child{border-bottom:0}}
@@ -114,15 +116,15 @@
     .planning-status{min-height:0;padding:0 18px;color:var(--slate);font:500 10px 'DM Mono',monospace}.planning-status:not(:empty){padding-top:11px}
     .planning-output{padding:14px 18px;overflow:auto}.planning-output[hidden]{display:none}.planning-table{min-width:610px;border-top:1px solid var(--line);border-left:1px solid var(--line);font-size:11px}.planning-row{display:grid;grid-template-columns:82px 74px 68px minmax(150px,1fr) 108px 1fr}.planning-row>span{padding:8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.planning-row.header{background:var(--ink);color:#fff;font:500 9px 'DM Mono',monospace;text-transform:uppercase;letter-spacing:.04em}.planning-empty{padding:12px;background:#f8faf9;color:var(--slate);font-size:11px}
     @media(max-width:580px){.planning-head{display:block}.planning-head p{margin-top:8px}.planning-actions{display:grid;grid-template-columns:1fr}.planning-button{width:100%}}
-    /* Keep placed insert artwork inside its physical drawer slot. */
-    .block.placed { position:relative; overflow:hidden; }
-    .block.placed > .insert-image-frame { position:absolute; inset:0; overflow:hidden; display:grid; place-items:center; background:#202426; }
-    .block.placed > .insert-image-frame img { display:block; width:100%; height:100%; object-fit:contain; background:#202426; border:0; padding:0; }
+    /* Keep placed insert artwork inside its physical drawer slot without dark letterbox boxes. */
+    .block.placed { position:relative; overflow:hidden; background:#fff; }
+    .block.placed > .insert-image-frame { position:absolute; inset:0; overflow:hidden; display:grid; place-items:center; background:#fff; }
+    .block.placed > .insert-image-frame img { display:block; width:100%; height:100%; object-fit:contain; background:#fff; border:0; padding:0; }
     .block.placed > .insert-image-frame img.image-portrait { transform:none; }
     .block.placed > .insert-image-frame img.image-landscape { transform:rotate(90deg); }
-    .block.placed > .insert-image-frame img.image-landscape.image-size-441 { transform:rotate(90deg); }
-    .block.placed > .insert-image-frame img.image-landscape.image-size-641 { transform:rotate(90deg); }
-    .block.placed > .insert-image-frame img.image-landscape.image-size-241 { transform:rotate(90deg); }
+    .block.placed > .insert-image-frame img.image-landscape.image-size-441 { transform:rotate(90deg) scale(1.45); }
+    .block.placed > .insert-image-frame img.image-landscape.image-size-641 { transform:rotate(90deg) scale(1.44); }
+    .block.placed > .insert-image-frame img.image-landscape.image-size-241 { transform:rotate(90deg) scale(2.9); }
   </style>
 </head>
 <body>
@@ -255,6 +257,36 @@
       drawerExample([['6.4.1',3],['2.4.1',1]],[],'1 × 6.4.1 + 1 × 2.4.1','Fills one lane = half drawer','6plus2','6open')
     ].join('');document.querySelectorAll('[data-plan-a]').forEach(el=>el.onclick=()=>{drawers[activeDrawer].a=el.dataset.planA;drawers[activeDrawer].b=el.dataset.planB;selectedInserts[activeDrawer]={};selectedLane='a';selectedPattern=el.dataset.planA;selectedSlot=null;render();});}
     function renderCatalogue(){ const slot=selectedSlot; const candidates=slot && slot.size!=='Open' ? spreadsheetArticles.filter(a=>a.size===slot.size) : []; const fitNote=document.getElementById('fitNote'); const catalogue=document.getElementById('catalogue'); if(!slot){ fitNote.textContent='Select the left or right bay, then tap an insert position.'; catalogue.innerHTML='<div class="empty-state">Choose a physical insert position in the drawer to see every compatible article from the spreadsheet list.</div>'; return; } if(slot.size==='Open'){ fitNote.textContent='This is unused capacity; no insert can be placed here.'; catalogue.innerHTML='<div class="empty-state">The selected position is intentionally open. Choose a coloured insert position to allocate an article.</div>'; return; } fitNote.textContent=`${candidates.length} compatible article${candidates.length===1?'':'s'} for ${slot.size}.`; catalogue.innerHTML=candidates.length ? candidates.map(a=>`<button class="product" data-product="${a.article}" title="Place article ${a.article} in this ${a.size} position"><img class="${imageClass(a.size)}" src="${a.image}" alt="${a.description} — ${a.article}"><span class="article-number">${a.article}</span><span class="article-description">${a.description}</span><span>${a.size}</span><span class="article">Select this article</span></button>`).join('') : '<div class="empty-state">No compatible articles are currently loaded for this insert size.</div>'; document.querySelectorAll('.product[data-product]').forEach(el=>el.onclick=()=>{ const product=spreadsheetArticles.find(x=>x.article===el.dataset.product); if(!product || !selectedSlot) return; selectedInserts[activeDrawer][selectedSlot.key]=product; selectedSlot=null; render(); }); }
+    /* Render catalogue cards lightly, then attach the shared embedded image after the card list exists. */
+    function renderCatalogue(){
+      const slot=selectedSlot;
+      const candidates=slot && slot.size!=='Open' ? spreadsheetArticles.filter(a=>a.size===slot.size) : [];
+      const fitNote=document.getElementById('fitNote');
+      const catalogue=document.getElementById('catalogue');
+      if(!slot){
+        fitNote.textContent='Select the left or right bay, then tap an insert position.';
+        catalogue.innerHTML='<div class="empty-state">Choose a physical insert position in the drawer to see every compatible article from the spreadsheet list.</div>';
+        return;
+      }
+      if(slot.size==='Open'){
+        fitNote.textContent='This is unused capacity; no insert can be placed here.';
+        catalogue.innerHTML='<div class="empty-state">The selected position is intentionally open. Choose a coloured insert position to allocate an article.</div>';
+        return;
+      }
+      fitNote.textContent=`${candidates.length} compatible article${candidates.length===1?'':'s'} for ${slot.size}.`;
+      catalogue.innerHTML=candidates.length ? candidates.map(a=>`<button class="product" data-product="${a.article}" title="Place article ${a.article} in this ${a.size} position"><img class="${imageClass(a.size)}" alt="${a.description} — ${a.article}" loading="lazy" decoding="async" data-article-image="${a.article}"><span class="article-number">${a.article}</span><span class="article-description">${a.description}</span><span>${a.size}</span><span class="article">Select this article</span></button>`).join('') : '<div class="empty-state">No compatible articles are currently loaded for this insert size.</div>';
+      catalogue.querySelectorAll('img[data-article-image]').forEach(img=>{
+        const article=spreadsheetArticles.find(a=>a.article===img.dataset.articleImage);
+        if(article) img.src=article.image;
+      });
+      catalogue.querySelectorAll('.product[data-product]').forEach(el=>el.onclick=()=>{
+        const product=spreadsheetArticles.find(x=>x.article===el.dataset.product);
+        if(!product || !selectedSlot) return;
+        selectedInserts[activeDrawer][selectedSlot.key]=product;
+        selectedSlot=null;
+        render();
+      });
+    }
     function plannedRecords(){ const records=[]; drawers.forEach((drawer,drawerIndex)=>{ ['a','b'].forEach(side=>{ const pattern=byId(drawer[side]); pattern.items.forEach(([label],index)=>{ if(label==='Open') return; const product=selectedInserts[drawerIndex][slotKey(side,index)]; if(product) records.push({drawer:drawer.name,side:side==='a'?'Left':'Right',position:index+1,size:label,article:product.article,description:product.description}); }); }); }); return records; }
     function escapeHtml(value){ return String(value??'').replace(/[&<>"']/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character])); }
     function articleSummary(){ const summary={}; plannedRecords().forEach(record=>{ const key=record.article; if(!summary[key]) summary[key]={article:record.article,size:record.size,description:record.description,quantity:0,locations:[]}; summary[key].quantity++; summary[key].locations.push(`${record.drawer} ${record.side} position ${record.position}`); }); return Object.values(summary); }
