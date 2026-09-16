@@ -41,11 +41,6 @@
     .side.active-lane .side-title { color:var(--red); }
     .product img.image-portrait { object-fit:contain; }
     .product img.image-landscape { object-fit:contain; transform:rotate(90deg); width:100%; height:144px; }
-    .block.placed img.image-portrait { object-fit:contain; }
-    .block.placed img.image-landscape { object-fit:contain; transform:rotate(90deg); width:100%; height:100%; background:transparent; }
-    .block.placed img.image-landscape.image-size-441 { transform:rotate(90deg) scale(1.45); }
-    .block.placed img.image-landscape.image-size-641 { transform:rotate(90deg) scale(.97); }
-    .block.placed img.image-landscape.image-size-241 { transform:rotate(90deg) scale(2.9); }
     .layout-card { cursor:pointer; }
     .opt-copy b { display:block; font-size:13px; }
     .opt-copy span { display:block; margin-top:3px; color:var(--slate); font:400 10px 'DM Mono',monospace; }
@@ -106,6 +101,15 @@
     @media(max-width:900px){ .intro,.workspace{grid-template-columns:1fr}.intro{gap:24px}.measure{max-width:280px}.chooser{order:2}.option-list{grid-template-columns:repeat(2,1fr)}.catalogue-grid{grid-template-columns:repeat(2,1fr)}.layout-reference-grid{grid-template-columns:1fr}.layout-card,.layout-card:nth-child(4n){border-right:0}.product:nth-child(2){border-right:0}.product:nth-child(n+3){border-top:1px solid var(--line)}}
     @media(max-width:580px){.catalogue-grid,.layout-reference-grid{grid-template-columns:1fr}.layout-card,.layout-card:nth-child(4n){border-right:0}.product{border-right:0;border-bottom:1px solid var(--line)}.product:last-child{border-bottom:0}}
     @media(max-width:580px){ main{padding-inline:15px}.topbar{padding-inline:15px}.mode{display:none}.option-list{grid-template-columns:1fr}.drawer-sheet{padding:17px}.halves{gap:8px}.side{padding:0}.layout-grid{min-height:130px}.drawer-top{align-items:end}.config-count{font-size:9px}.rulebox{grid-template-columns:1fr;gap:7px}.summary div{padding:11px}.summary b{font-size:20px} }
+    /* Keep placed insert artwork inside its physical drawer slot. */
+    .block.placed { position:relative; overflow:hidden; }
+    .block.placed > .insert-image-frame { position:absolute; inset:0; overflow:hidden; display:grid; place-items:center; background:#202426; }
+    .block.placed > .insert-image-frame img { display:block; width:100%; height:100%; object-fit:contain; background:#202426; border:0; padding:0; }
+    .block.placed > .insert-image-frame img.image-portrait { transform:none; }
+    .block.placed > .insert-image-frame img.image-landscape { transform:rotate(90deg); }
+    .block.placed > .insert-image-frame img.image-landscape.image-size-441 { transform:rotate(90deg); }
+    .block.placed > .insert-image-frame img.image-landscape.image-size-641 { transform:rotate(90deg); }
+    .block.placed > .insert-image-frame img.image-landscape.image-size-241 { transform:rotate(90deg); }
   </style>
 </head>
 <body>
@@ -226,7 +230,7 @@
     function mini(p){ return `<div class="mini-grid">${p.items.map(([label,cls,span])=>`<i class="mini-block ${cls.includes('empty')?'mini-empty':''}" style="grid-row:span ${span}"></i>`).join('')}</div>`; }
     function renderOptions(){ const activeId=drawers[activeDrawer][selectedLane]; document.getElementById('options').innerHTML = patterns.map(p=>`<button class="option ${p.id===activeId?'active':''}" data-pattern="${p.id}" aria-pressed="${p.id===activeId}" title="Apply ${p.name} to the ${selectedLane==='a'?'left':'right'} bay">${mini(p)}<span class="opt-copy"><b>${p.name}</b><span>${p.note}</span></span></button>`).join(''); document.querySelectorAll('.option').forEach(el=>el.onclick=()=>{ const side=selectedLane; drawers[activeDrawer][side]=el.dataset.pattern; selectedPattern=el.dataset.pattern; clearLaneSelections(side); selectedSlot=null; render(); }); }
     function renderTabs(){ document.getElementById('tabs').innerHTML=drawers.map((d,i)=>`<button class="drawer-tab ${i===activeDrawer?'active':''}" data-drawer="${i}">${d.name}</button>`).join(''); document.querySelectorAll('.drawer-tab').forEach(el=>el.onclick=()=>{activeDrawer=+el.dataset.drawer; selectedLane='a'; selectedPattern=drawers[activeDrawer].a; selectedSlot=null; render();}); }
-    function grid(p, side){ return p.items.map(([label,cls,span],index)=>{ const key=slotKey(side,index); const chosen=selectedInserts[activeDrawer][key]; const isSelected=selectedSlot && selectedSlot.key===key; return `<button class="${cls} ${chosen?'placed':''} ${isSelected?'selectable':''}" style="grid-row:span ${span}" data-slot="${key}" data-size="${label}" aria-pressed="${!!isSelected}" title="${chosen?'Selected '+chosen.name:'Select this '+label+' position'}">${label==='Open' ? 'Open' : chosen?`<img class="${imageClass(chosen.size)}" src="${chosen.image}" alt="${chosen.name}"><span class="insert-tag">${chosen.size}</span>`:`<span><span class="system">System<br>Assortment</span><span class="size">${label}</span></span>`}</button>`; }).join(''); }
+    function grid(p, side){ return p.items.map(([label,cls,span],index)=>{ const key=slotKey(side,index); const chosen=selectedInserts[activeDrawer][key]; const isSelected=selectedSlot && selectedSlot.key===key; return `<button class="${cls} ${chosen?'placed':''} ${isSelected?'selectable':''}" style="grid-row:span ${span}" data-slot="${key}" data-size="${label}" aria-pressed="${!!isSelected}" title="${chosen?'Selected '+chosen.name:'Select this '+label+' position'}">${label==='Open' ? 'Open' : chosen?`<span class="insert-image-frame"><img class="${imageClass(chosen.size)}" src="${chosen.image}" alt="${chosen.name}"></span><span class="insert-tag">${chosen.size}</span>`:`<span><span class="system">System<br>Assortment</span><span class="size">${label}</span></span>`}</button>`; }).join(''); }
     function lane(items=[]){const filled=items.reduce((s,x)=>s+x[1],0);return `<div class="lane-thumb">${items.map(([label,units])=>`<i class="w${units}" title="${label}"></i>`).join('')}${filled<4?`<i class="empty w${4-filled}" title="Unused lane capacity"></i>`:''}</div>`;}
     function drawerExample(left,right,title,note,planA,planB){return `<button class="layout-card" data-plan-a="${planA}" data-plan-b="${planB}"><div class="full-drawer-thumb">${lane(left)}${lane(right)}</div><b>${title}</b><span>${note}</span><span class="layout-dim">Tap to use this full-drawer plan</span></button>`;}
     function renderReference(){document.getElementById('layoutReference').innerHTML=[
