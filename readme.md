@@ -1,8 +1,8 @@
 # Würth Toolbox Configurator
 
-A self-contained browser-based configurator for planning the insert layout of a Würth toolbox with five drawers.
+A browser-based configurator for planning the insert layout of a Würth toolbox with five drawers.
 
-The application is designed for GitHub Pages and runs from a single file: **`index.html`**.
+The application is designed for GitHub Pages and runs from **`index.html`** together with the matching product photos in the **`images/`** folder.
 
 ## What the configurator does
 
@@ -105,13 +105,14 @@ This is useful for transferring a planned configuration into another document, e
 
 1. Create a new GitHub repository.
 2. Upload **`index.html`** to the repository root.
-3. Optionally upload this **`readme.md`** for project documentation.
-4. Open **Settings → Pages**.
-5. Under **Build and deployment**, choose **Deploy from a branch**.
-6. Select the `main` branch and the `/ (root)` folder.
-7. Select **Save** and wait for GitHub Pages to publish the site.
+3. Upload the complete **`images/`** folder, including all matching `.jpg` files, to the repository root.
+4. Optionally upload this **`readme.md`** for project documentation.
+5. Open **Settings → Pages**.
+6. Under **Build and deployment**, choose **Deploy from a branch**.
+7. Select the `main` branch and the `/ (root)` folder.
+8. Select **Save** and wait for GitHub Pages to publish the site.
 
-The live application only requires `index.html`. The article data and sample images are embedded in that file, so the Excel workbook and separate image files are not required for normal operation.
+The live application requires both `index.html` and the `images/` folder. The Excel workbook is not required for normal operation because the article numbers, descriptions, insert sizes and image paths are already included in the application.
 
 ## Local testing
 
@@ -140,7 +141,7 @@ Use a current version of:
 - Mozilla Firefox
 - Safari
 
-The application uses standard browser features including JavaScript, canvas image conversion and clipboard access. The layout is responsive and can be used on smaller screens, although a larger screen is preferable when planning a complete drawer set.
+The application uses standard browser features including JavaScript, canvas image conversion and clipboard access. Product images are loaded from the relative `images/` folder, so keep that folder beside `index.html` when testing or deploying. The layout is responsive and can be used on smaller screens, although a larger screen is preferable when planning a complete drawer set.
 
 ## Important behaviour
 
@@ -152,17 +153,24 @@ The application uses standard browser features including JavaScript, canvas imag
 
 ## Updating article data or images
 
-The current article list, descriptions and embedded sample images are stored inside the JavaScript section of `index.html`.
+The current article data is stored inside the JavaScript section of `index.html`. Each record contains:
 
-When updating the file:
+- The display article number, with Würth spacing such as `0965 905 903`.
+- The normalised SAP article number used for image lookup, such as `0965905903`.
+- The workbook description.
+- The insert size.
+- A matching relative image path in the form `images/0965905903.jpg`.
+
+The image filename must match the normalised SAP article number exactly, apart from the `.jpg` extension. When updating the file:
 
 1. Keep the article number and insert-size values in the same format.
-2. Ensure each article has the correct insert size.
-3. Keep the image data embedded if the file must continue working offline on GitHub Pages.
-4. Test each insert size after making changes.
-5. Confirm that the article counts and compatible-article filtering still work.
+2. Ensure each article has the correct insert size and description.
+3. Add the corresponding product photo to the `images/` folder.
+4. Keep the image filename aligned with the normalised SAP article number.
+5. Test each insert size after making changes.
+6. Confirm that the article counts and compatible-article filtering still work.
 
-The `8.4.1` artwork is portrait. The `4.4.1`, `6.4.1` and `2.4.1` artwork is prepared for landscape display by the application.
+The current workbook contains 76 articles: 23 for `8.4.1`, 33 for `4.4.1`, 6 for `6.4.1` and 14 for `2.4.1`. The application uses the original product-photo orientation and `object-fit: contain` so the images are not rotated or unnecessarily cropped.
 
 ## Troubleshooting
 
